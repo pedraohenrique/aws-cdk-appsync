@@ -1,19 +1,26 @@
-import { Duration, Stack, StackProps } from 'aws-cdk-lib';
-import * as sns from 'aws-cdk-lib/aws-sns';
-import * as subs from 'aws-cdk-lib/aws-sns-subscriptions';
-import * as sqs from 'aws-cdk-lib/aws-sqs';
+import path = require('path');
 import { Construct } from 'constructs';
+
+import { Duration, Stack, StackProps } from 'aws-cdk-lib';
+import {
+  AmplifyGraphqlApi,
+  AmplifyGraphqlDefinition,
+} from '@aws-amplify/graphql-api-construct';
 
 export class AwsCdkAppsyncStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
-    const queue = new sqs.Queue(this, 'AwsCdkAppsyncQueue', {
-      visibilityTimeout: Duration.seconds(300)
+    const amplifyApi = new AmplifyGraphqlApi(this, 'aws-cdk-appsync-api', {
+      definition: AmplifyGraphqlDefinition.fromFiles(
+        path.join(__dirname, 'schema.graphql')
+      ),
+      authorizationModes: {
+        defaultAuthorizationMode: 'API_KEY',
+        apiKeyConfig: {
+          expires: Duration.days(30),
+        },
+      },
     });
-
-    const topic = new sns.Topic(this, 'AwsCdkAppsyncTopic');
-
-    topic.addSubscription(new subs.SqsSubscription(queue));
   }
 }

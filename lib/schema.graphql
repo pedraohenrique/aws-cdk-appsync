@@ -1,0 +1,15 @@
+type Movie @model(subscriptions: null) @auth(rules: [{ allow: public }]) {
+  id: ID!
+  name: String!
+  year: Int!
+  rating: Float!
+  poster: String!
+  tags: [String]
+  studio: Studio! @belongsTo
+}
+
+type Studio @model(subscriptions: null) @auth(rules: [{ allow: public }]) {
+  id: ID!
+  name: String!
+  movies: [Movie] @hasMany
+}
